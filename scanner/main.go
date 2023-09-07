@@ -23,8 +23,7 @@ func main() {
 	var s scanner.Scanner
 	fset := token.NewFileSet()
 	file := fset.AddFile(f.Name(), fset.Base(), len(b))
-	file.
-		s.Init(file, b, nil, scanner.ScanComments)
+	s.Init(file, b, nil, scanner.ScanComments)
 
 	var (
 		oldLine = 1
