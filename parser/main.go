@@ -14,10 +14,12 @@ func main() {
 		return
 	}
 
-	binEx, ok := expr.(*ast.BinaryExpr)
+	binaryExpr, ok := (expr).(*ast.BinaryExpr)
 	if !ok {
 		return
 	}
 
-	fmt.Printf("expr: %+v\n", binEx)
+	fmt.Printf("X: %+v\n", binaryExpr.X)
+	fmt.Printf("Op: %+v\n", binaryExpr.Op)
+	fmt.Printf("Y: %+v\n", binaryExpr.Y)
 }
