@@ -5,25 +5,28 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"io"
 	"log"
+	"os"
 )
 
 func main() {
-	const src = `package main
-func main() {
-;
-	goto HOGE
-	HOGE:
-}
-`
-
-	fset := token.NewFileSet()
-
-	f, err := parser.ParseFile(fset, "", src, parser.Mode(0))
+	file, err := os.Open("ast_and_token_pos.go")
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+	defer file.Close()
+
+	b, _ := io.ReadAll(file)
+
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, file.Name(), b, parser.Mode(0))
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
 	for _, d := range f.Decls {
 		fun, ok := d.(*ast.FuncDecl)
 		if !ok {
@@ -32,17 +35,15 @@ func main() {
 
 		funcBody := fun.Body
 		for _, stmt := range funcBody.List {
-			emptyStmt, ok := stmt.(*ast.EmptyStmt)
-			if ok {
-				fmt.Printf("found EmptyStmt at %v\n", fset.Position(emptyStmt.Pos()))
-				ast.Print(fset, emptyStmt)
+			exprStmt, ok := stmt.(*ast.ExprStmt)
+			if !ok {
+				continue
 			}
 
-			labeledStmt, ok := stmt.(*ast.LabeledStmt)
-			if ok {
-				fmt.Printf("found LabeledStmt at %v\n", fset.Position(labeledStmt.Pos()))
-				ast.Print(fset, labeledStmt)
-			}
+			sumVar := exprStmt.X.(*ast.BinaryExpr).X.(*ast.Ident)
+			fmt.Printf("Pos(): %+v\n", fset.Position(sumVar.Pos()))
+			fmt.Printf("End(): %+v\n", fset.Position(sumVar.End()))
+			sumVar.
 		}
 	}
 }
