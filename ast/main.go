@@ -43,7 +43,6 @@ func main() {
 			sumVar := exprStmt.X.(*ast.BinaryExpr).X.(*ast.Ident)
 			fmt.Printf("Pos(): %+v\n", fset.Position(sumVar.Pos()))
 			fmt.Printf("End(): %+v\n", fset.Position(sumVar.End()))
-			sumVar.
 		}
 	}
 }
