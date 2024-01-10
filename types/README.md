@@ -1,0 +1,114 @@
+# go/typesパッケージ
+
+## 概要
+
+Goの型チェックは以下の3つのことをする。
+
+1. identifier resolution
+    - プログラムにあるすべての"名前"について、その名前が参照する識別子を特定する
+2. type deduction
+3. constant evaluation
+
+## `Package` 構造体
+
+構造体の詳細
+
+```bash
+❯ go doc go/types.Package
+package types // import "go/types"
+
+type Package struct {
+        // Has unexported fields.
+}
+    A Package describes a Go package.
+
+var Unsafe *Package
+func NewPackage(path, name string) *Package
+func (pkg *Package) Complete() bool
+func (pkg *Package) GoVersion() string
+func (pkg *Package) Imports() []*Package
+func (pkg *Package) MarkComplete()
+func (pkg *Package) Name() string
+func (pkg *Package) Path() string
+func (pkg *Package) Scope() *Scope
+func (pkg *Package) SetImports(list []*Package)
+func (pkg *Package) SetName(name string)
+func (pkg *Package) String() string
+```
+
+## `Scope` 構造体
+
+packageの字句ブロック (lexical block) を保持する構造体。packageレベルで定義されている名前付きのentityとobjectにアクセスできる。
+
+```bash
+❯ go doc go/types.Scope
+package types // import "go/types"
+
+type Scope struct {
+        // Has unexported fields.
+}
+    A Scope maintains a set of objects and links to its containing (parent) and
+    contained (children) scopes. Objects may be inserted and looked up by name.
+    The zero value for Scope is a ready-to-use empty scope.
+
+var Universe *Scope
+func NewScope(parent *Scope, pos, end token.Pos, comment string) *Scope
+func (s *Scope) Child(i int) *Scope
+func (s *Scope) Contains(pos token.Pos) bool
+func (s *Scope) End() token.Pos
+func (s *Scope) Innermost(pos token.Pos) *Scope
+func (s *Scope) Insert(obj Object) Object
+func (s *Scope) Len() int
+func (s *Scope) Lookup(name string) Object
+func (s *Scope) LookupParent(name string, pos token.Pos) (*Scope, Object)
+func (s *Scope) Names() []string
+func (s *Scope) NumChildren() int
+func (s *Scope) Parent() *Scope
+func (s *Scope) Pos() token.Pos
+func (s *Scope) String() string
+func (s *Scope) WriteTo(w io.Writer, n int, recurse bool)
+```
+
+## オブジェクト
+
+identifier resolutionのタスクは `ast.Ident` を *object* にマップすること。
+
+```bash
+❯ go doc go/types.Object
+package types // import "go/types"
+
+type Object interface {
+        Parent() *Scope // scope in which this object is declared; nil for methods and struct fields
+        Pos() token.Pos // position of object identifier in declaration
+        Pkg() *Package  // package to which this object belongs; nil for labels and objects in the Universe scope
+        Name() string   // package local object name
+        Type() Type     // object type
+        Exported() bool // reports whether the name starts with a capital letter
+        Id() string     // object name if exported, qualified name if not exported (see func Id)
+
+        // String returns a human-readable string of the object.
+        String() string
+
+        // Has unexported methods.
+}
+    An Object describes a named language entity such as a package, constant,
+    type, variable, function (incl. methods), or label. All objects implement
+    the Object interface.
+
+func LookupFieldOrMethod(T Type, addressable bool, pkg *Package, name string) (obj Object, index []int, indirect bool)
+```
+
+`ast.Ident` にパッケージの情報や型の情報、Scopeの情報を肉付けしたもの？
+
+`object` インターフェイスを満たす構造体は以下の8つ。
+
+```bash
+Object = *Func         // function, concrete method, or abstract method
+       | *Var          // variable, parameter, result, or struct field
+       | *Const        // constant
+       | *TypeName     // type name
+       | *Label        // statement label
+       | *PkgName      // package name, e.g. json after import "encoding/json"
+       | *Builtin      // predeclared function such as append or len
+       | *Nil          // predeclared nil
+```
