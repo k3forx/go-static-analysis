@@ -38,6 +38,10 @@ func (pkg *Package) String() string
 
 ## `Scope` 構造体
 
+まとめ
+
+- オブジェクトの集合とそれらを含んでいる (親の) スコープと含んだ (子の) パッケージのスコープを表現する
+
 packageの字句ブロック (lexical block) を保持する構造体。packageレベルで定義されている名前付きのentityとobjectにアクセスできる。
 
 ```bash
@@ -112,3 +116,24 @@ Object = *Func         // function, concrete method, or abstract method
        | *Builtin      // predeclared function such as append or len
        | *Nil          // predeclared nil
 ```
+
+## Identifier Resolution
+
+識別子とObjectの関係は `Check` 関数の最後の引数に渡す `types.Info` 構造体に保存される。APIを呼ぶ側で何の情報が必要かを制御することができるようになっている。
+
+```bash
+type Info struct {
+	Defs       map[*ast.Ident]Object
+	Uses       map[*ast.Ident]Object
+	Implicits  map[ast.Node]Object
+	Selections map[*ast.SelectorExpr]*Selection
+	Scopes     map[ast.Node]*Scope
+	...
+}
+```
+
+`map[*ast.Indent]Object` 型で最も重要な2つのフィールドは
+
+- `Defs`: 
+- `Uses`:
+
