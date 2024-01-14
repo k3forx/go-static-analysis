@@ -41,6 +41,7 @@ func (pkg *Package) String() string
 まとめ
 
 - オブジェクトの集合とそれらを含んでいる (親の) スコープと含んだ (子の) パッケージのスコープを表現する
+- 名前とObjectのマッピング
 
 packageの字句ブロック (lexical block) を保持する構造体。packageレベルで定義されている名前付きのentityとobjectにアクセスできる。
 
@@ -72,6 +73,8 @@ func (s *Scope) Pos() token.Pos
 func (s *Scope) String() string
 func (s *Scope) WriteTo(w io.Writer, n int, recurse bool)
 ```
+
+`Names` メソッドは名前の集合を返す。`Lookup` メソッドは与えられた名前に対するobjectをお返す。
 
 ## オブジェクト
 
@@ -134,6 +137,37 @@ type Info struct {
 
 `map[*ast.Indent]Object` 型で最も重要な2つのフィールドは
 
-- `Defs`: 
-- `Uses`:
+- `Defs`: 識別子が定義されている箇所を保持する
+- `Uses`: 識別子が参照されている箇所を保持する
+- `Implicits`: 
+- `Selections`: 
+- 
+
+以下のコードで試してみる。
+
+```bash
+func PrintDefsUses(fset *token.FileSet, files ...*ast.File) error {
+	conf := types.Config{Importer: importer.Default()}
+	info := &types.Info{
+		Defs: make(map[*ast.Ident]types.Object),
+		Uses: make(map[*ast.Ident]types.Object),
+	}
+	_, err := conf.Check("hello", fset, files, info)
+	if err != nil {
+		return err // type error
+	}
+
+	for id, obj := range info.Defs {
+		fmt.Printf("%s: %q defines %v\n",
+			fset.Position(id.Pos()), id.Name, obj)
+	}
+	for id, obj := range info.Uses {
+		fmt.Printf("%s: %q uses %v\n",
+			fset.Position(id.Pos()), id.Name, obj)
+	}
+	return nil
+}
+```
+
+## `Scope` 構造体
 
