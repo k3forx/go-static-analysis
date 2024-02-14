@@ -171,3 +171,37 @@ func PrintDefsUses(fset *token.FileSet, files ...*ast.File) error {
 
 ## `Scope` 構造体
 
+- 名前からobjectへのマップを持っている
+
+```go
+type Scope struct{ ... }
+
+func (s *Scope) Names() []string
+func (s *Scope) Lookup(name string) Object
+```
+
+`Names` でマッピング内の名前のセットをソートして返す。`Lookup` を使えば、名前に対応する `Object` を探せる。
+
+```go
+for _, name := range scope.Names() {
+	fmt.Println(scope.Lookup(name))
+}
+```
+
+`go/types` パッケージのscopeは字句スコープ (静的スコープ) を表す。字句スコープは字句環境で構成される。具体例として以下のコードを考えてみる。
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	const message = "hello, world"
+	fmt.Println(message)
+}
+```
+
+上記のプログラムには4つの字句ブロックが存在する。
+
+- universalブロック: 予約語がobjectにマップされている
+- packageブロック: 
