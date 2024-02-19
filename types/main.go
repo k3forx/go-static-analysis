@@ -8,45 +8,50 @@ import (
 	"go/token"
 	"go/types"
 	"log"
+	"strings"
 )
 
-const hello = `package main
+const hello = `
+package main
 
 import "fmt"
 
+// append
 func main() {
-	const message = "hello, world"
-	fmt.Println(message)
+	// fmt
+	fmt.Println("Hello, world")
+	// main
+	main, x := 1, 2
+	// main
+	print(main, x)
+	// x
 }
+// x
 `
 
 func main() {
 	fset := token.NewFileSet()
-
-	f, err := parser.ParseFile(fset, "hello.go", hello, 0)
+	f, err := parser.ParseFile(fset, "hello.go", hello, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 型チェックのための設定を行う
-	// Importerフィールドはimportの情報を解析するための設定
 	conf := types.Config{Importer: importer.Default()}
-
-	// Check関数はtypes.Configに基づいて型チェックを行う
-	// 返り値はPackage型になる
-	// 最後の引数のtypes.Infoにast.IdentとObjectの紐付けの結果が格納される
-
-	info := &types.Info{
-		Scopes: map[ast.Node]*types.Scope{},
-	}
-
-	pkg, err := conf.Check("cmd/hello", fset, []*ast.File{f}, info)
+	pkg, err := conf.Check("cmd/hello", fset, []*ast.File{f}, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	scope := pkg.Scope()
-	for _, name := range scope.Names() {
-		fmt.Println(scope.Lookup(name))
+	for _, comment := range f.Comments {
+		pos := comment.Pos()
+		name := strings.TrimSpace(comment.Text())
+		fmt.Printf("At %s, \t%q = ", fset.Position(pos), name)
+
+		inner := pkg.Scope().Innermost(pos)
+		if _, obj := inner.LookupParent(name, pos); obj != nil {
+			fmt.Println(obj)
+		} else {
+			fmt.Println("not found")
+		}
 	}
 }

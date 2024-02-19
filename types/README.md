@@ -205,3 +205,143 @@ func main() {
 
 - universalブロック: 予約語がobjectにマップされている
 - packageブロック: 
+
+```go
+package main
+
+import (
+	"fmt"
+	"go/ast"
+	"go/importer"
+	"go/parser"
+	"go/token"
+	"go/types"
+	"log"
+)
+
+const hello = `package main
+
+import "fmt"
+
+func main() {
+	const message = "hello, world"
+	fmt.Println(message)
+}
+`
+
+func main() {
+	fset := token.NewFileSet()
+
+	f, err := parser.ParseFile(fset, "hello.go", hello, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 型チェックのための設定を行う
+	// Importerフィールドはimportの情報を解析するための設定
+	conf := types.Config{Importer: importer.Default()}
+
+	// Check関数はtypes.Configに基づいて型チェックを行う
+	// 返り値はPackage型になる
+	// 最後の引数のtypes.Infoにast.IdentとObjectの紐付けの結果が格納される
+
+	info := &types.Info{
+		Scopes: map[ast.Node]*types.Scope{},
+	}
+
+	pkg, err := conf.Check("cmd/hello", fset, []*ast.File{f}, info)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	scope := pkg.Scope()
+	for _, name := range scope.Names() {
+		fmt.Println(scope.Lookup(name))
+	}
+}
+```
+
+- 字句環境をlookupする
+  - `LookupParent` メソッドを使う
+
+```go
+package main
+
+import (
+	"fmt"
+	"go/ast"
+	"go/importer"
+	"go/parser"
+	"go/token"
+	"go/types"
+	"log"
+	"strings"
+)
+
+const hello = `
+package main
+
+import "fmt"
+
+// append
+func main() {
+	// fmt
+	fmt.Println("Hello, world")
+	// main
+	main, x := 1, 2
+	// main
+	print(main, x)
+	// x
+}
+// x
+`
+
+func main() {
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "hello.go", hello, parser.ParseComments)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	conf := types.Config{Importer: importer.Default()}
+	pkg, err := conf.Check("cmd/hello", fset, []*ast.File{f}, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, comment := range f.Comments {
+		pos := comment.Pos()
+		name := strings.TrimSpace(comment.Text())
+		fmt.Printf("At %s, \t%q = ", fset.Position(pos), name)
+
+		inner := pkg.Scope().Innermost(pos)
+		if _, obj := inner.LookupParent(name, pos); obj != nil {
+			fmt.Println(obj)
+		} else {
+			fmt.Println("not found")
+		}
+	}
+}
+```
+
+実行するとこんな感じになる。
+
+```bash
+❯ go run ./types
+At hello.go:6:1,        "append" = builtin append
+At hello.go:8:2,        "fmt" = package fmt
+At hello.go:10:2,       "main" = func cmd/hello.main()
+At hello.go:12:2,       "main" = var main int
+At hello.go:14:2,       "x" = var x int
+At hello.go:16:1,       "x" = not found
+```
+
+## 初期化の順序 (Initialization Order)
+
+よくわからん
+- https://github.com/golang/example/tree/master/gotypes#initialization-order
+
+
+## 型 (Types)
+
+### 基本的な型 (Basic Types)
