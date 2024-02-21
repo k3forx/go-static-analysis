@@ -8,7 +8,6 @@ import (
 	"go/token"
 	"go/types"
 	"log"
-	"strings"
 )
 
 const hello = `
@@ -16,42 +15,33 @@ package main
 
 import "fmt"
 
-// append
+var x int = 1
+
 func main() {
-	// fmt
-	fmt.Println("Hello, world")
-	// main
-	main, x := 1, 2
-	// main
-	print(main, x)
-	// x
+	var y int = 2
+	fmt.Println(x, y)
 }
-// x
 `
 
 func main() {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "hello.go", hello, parser.ParseComments)
+	f, err := parser.ParseFile(fset, "hello.go", hello, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	conf := types.Config{Importer: importer.Default()}
-	pkg, err := conf.Check("cmd/hello", fset, []*ast.File{f}, nil)
-	if err != nil {
+	info := &types.Info{InitOrder: []*types.Initializer{}}
+	if _, err := conf.Check("cmd/hello", fset, []*ast.File{f}, info); err != nil {
 		log.Fatal(err)
 	}
 
-	for _, comment := range f.Comments {
-		pos := comment.Pos()
-		name := strings.TrimSpace(comment.Text())
-		fmt.Printf("At %s, \t%q = ", fset.Position(pos), name)
-
-		inner := pkg.Scope().Innermost(pos)
-		if _, obj := inner.LookupParent(name, pos); obj != nil {
-			fmt.Println(obj)
-		} else {
-			fmt.Println("not found")
+	for _, initOrder := range info.InitOrder {
+		fmt.Printf("initOrder: %+v\n", initOrder)
+		for _, l := range initOrder.Lhs {
+			fmt.Printf("Lhs: %s, ", l.Name())
 		}
+		basiclit := initOrder.Rhs.(*ast.BasicLit)
+		fmt.Printf("Rhs: %v\n", basiclit.Value)
 	}
 }

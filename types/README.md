@@ -338,10 +338,107 @@ At hello.go:16:1,       "x" = not found
 
 ## 初期化の順序 (Initialization Order)
 
-よくわからん
-- https://github.com/golang/example/tree/master/gotypes#initialization-order
+packageレベルの初期化の順序を保持する。`Info` 構造体の `InitOrder` フィールドに情報が格納される。
 
+```go
+package main
+
+import (
+	"fmt"
+	"go/ast"
+	"go/importer"
+	"go/parser"
+	"go/token"
+	"go/types"
+	"log"
+)
+
+const hello = `
+package main
+
+import "fmt"
+
+var x int = 1
+
+func main() {
+	var y int = 2
+	fmt.Println(x, y)
+}
+`
+
+func main() {
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "hello.go", hello, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	conf := types.Config{Importer: importer.Default()}
+	info := &types.Info{InitOrder: []*types.Initializer{}}
+	if _, err := conf.Check("cmd/hello", fset, []*ast.File{f}, info); err != nil {
+		log.Fatal(err)
+	}
+
+	for _, initOrder := range info.InitOrder {
+		fmt.Printf("initOrder: %+v\n", initOrder)
+		for _, l := range initOrder.Lhs {
+			fmt.Printf("Lhs: %s, ", l.Name())
+		}
+		basiclit := initOrder.Rhs.(*ast.BasicLit)
+		fmt.Printf("Rhs: %v\n", basiclit.Value)
+	}
+}
+```
+
+実行すると `var x int = 1` の情報が取れる。
+
+```bash
+❯ go run ./types
+initOrder: x = 1
+Lhs: x, Rhs: 1
+```
 
 ## 型 (Types)
 
+`Type` はインターフェイス。
+
+```go
+type Type interface {
+	Underlying() Type
+}
+```
+
+`Type` インターフェイスを満たす具体な型は以下。
+
+```go
+Type = *Basic
+     | *Pointer
+     | *Array
+     | *Slice
+     | *Map
+     | *Chan
+     | *Struct
+     | *Tuple
+     | *Signature
+     | *Named
+     | *Interface
+```
+
 ### 基本的な型 (Basic Types)
+
+
+```go
+❯ go doc go/types.Basic
+package types // import "go/types"
+
+type Basic struct {
+        // Has unexported fields.
+}
+    A Basic represents a basic type.
+
+func (b *Basic) Info() BasicInfo
+func (b *Basic) Kind() BasicKind
+func (b *Basic) Name() string
+func (b *Basic) String() string
+func (b *Basic) Underlying() Type
+```
