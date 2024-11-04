@@ -33,7 +33,7 @@ func Do() {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, "hello.go", hello, parser.Mode(0))
 	if err != nil {
-		log.Fatal(fmt.Errorf("parsing file: %w", err))
+		log.Fatalf("parsing file: %w", err)
 	}
 
 	conf := types.Config{}
@@ -44,7 +44,7 @@ func Do() {
 
 	_, err = conf.Check("hello.go", fset, []*ast.File{f}, info)
 	if err != nil {
-		log.Fatal(fmt.Errorf("checking types: %w", err))
+		log.Fatalf("checking types: %w", err)
 	}
 
 	// printlnで使用されているxはどこで定義されているか？ -> 識別子の解決
