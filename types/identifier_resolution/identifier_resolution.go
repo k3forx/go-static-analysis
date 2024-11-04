@@ -55,7 +55,7 @@ func Do() {
 			if o == obj {
 				switch defIdent.Name {
 				case "x":
-					fmt.Println("xの型は", o.Type().String(), o.String())
+					fmt.Println("xの型は", o.Type().String())
 				case "y":
 					fmt.Println("yの型は", o.Type().String())
 				case "sum":
