@@ -7,7 +7,15 @@ Goの型チェックは以下の3つのことをする。
 1. identifier resolution
     - プログラムにあるすべての"名前"について、その名前が参照する識別子を特定する
 2. type deduction
+    - プログラムにある"各式"について、その式が持つ型を特定し、式に型がない場合や、その文脈に対して不適切な型である場合にはエラーを返す
 3. constant evaluation
+    - プログラムにあるすべての"定数表現"
+
+## Identifier Resolution
+
+- identifier resolutionによって `ast.Ident` と `Object` のマッピングが作られる
+
+## Example
 
 ## `Package` 構造体
 
@@ -78,7 +86,8 @@ func (s *Scope) WriteTo(w io.Writer, n int, recurse bool)
 
 ## オブジェクト
 
-identifier resolutionのタスクは `ast.Ident` を *object* にマップすること。
+- identifier resolutionのタスクは `ast.Ident` を *object* にマップすること。
+- `1` を
 
 ```bash
 ❯ go doc go/types.Object
