@@ -1,4 +1,4 @@
-package info_uses_defs
+package info_uses
 
 import (
 	"fmt"
@@ -7,17 +7,18 @@ import (
 	"go/token"
 	"go/types"
 	"log"
-	"reflect"
 )
 
-const hello = `
-package main
+const hello = `package main
 
-var a int
-const b = 1
-type c struct {}
+type a struct {
+	id int // intが使われている
+}
 
-func d() {}
+func b () {
+	var c a // aが使われている
+	c.id = 1 // cが使われている、idが使われている
+}
 `
 
 func Do() {
@@ -29,7 +30,7 @@ func Do() {
 
 	conf := types.Config{}
 	info := &types.Info{
-		Defs: make(map[*ast.Ident]types.Object),
+		Uses: make(map[*ast.Ident]types.Object),
 	}
 
 	_, err = conf.Check("hello.go", fset, []*ast.File{f}, info)
@@ -37,7 +38,7 @@ func Do() {
 		log.Fatalf("checking types: %v", err)
 	}
 
-	for ident, o := range info.Defs {
-		fmt.Printf("name: %s, types: %v\n", ident.Name, reflect.TypeOf(o))
+	for ident, o := range info.Uses {
+		fmt.Printf("name: %s, types: %v (%s)\n", ident.Name, o.Type().String(), fset.Position(ident.Pos()))
 	}
 }
