@@ -10,13 +10,6 @@ import (
 )
 
 const pkgStr = `package main
-var a string
-
-func main() {
-	var b int
-	b = 123
-	println(b)
-}
 `
 
 func Do() {
@@ -33,9 +26,4 @@ func Do() {
 	}
 
 	fmt.Printf("Name: %s\n", pkgInfo.Name())
-	fmt.Printf("Scope: %+v\n", pkgInfo.Scope().Names())
-	for i := range pkgInfo.Scope().NumChildren() {
-		sc := pkgInfo.Scope().Child(i)
-		fmt.Printf("Child: %+v\n", sc.Child(0))
-	}
 }
