@@ -26,4 +26,12 @@ func Do() {
 	}
 
 	fmt.Printf("Name: %s\n", pkgInfo.Name())
+
+	u := types.Universe
+	nilObj := u.Lookup("nil")
+	obj, ok := nilObj.(*types.Nil)
+	if !ok {
+		log.Fatalf("unexpected object type %T", nilObj)
+	}
+	fmt.Println(obj.Name())
 }

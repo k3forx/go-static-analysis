@@ -6,8 +6,10 @@ import (
 	"github.com/k3forx/go-static-analysis/types/identifier_resolution"
 	"github.com/k3forx/go-static-analysis/types/info_defs"
 	"github.com/k3forx/go-static-analysis/types/info_uses"
+	"github.com/k3forx/go-static-analysis/types/object"
 	pkg "github.com/k3forx/go-static-analysis/types/package"
 	"github.com/k3forx/go-static-analysis/types/scope"
+	"github.com/k3forx/go-static-analysis/types/type_interface"
 )
 
 func main() {
@@ -25,6 +27,12 @@ func main() {
 
 	printDivider("Scope")
 	scope.Do()
+
+	printDivider("Object")
+	object.Do()
+
+	printDivider("Type Interface")
+	type_interface.Do()
 }
 
 func printDivider(name string) {
