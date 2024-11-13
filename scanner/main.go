@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+// https://go.dev/play/p/t3XAEtYYP7e も参考になる
+
 func main() {
 	f, err := os.Open("a.go")
 	if err != nil {
