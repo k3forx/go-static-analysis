@@ -11,6 +11,20 @@ import (
 )
 
 // https://go.dev/play/p/t3XAEtYYP7e も参考になる
+// src := []byte(`sum := n + 1`)
+
+// fset := token.NewFileSet()
+// file := fset.AddFile("tmp.go", fset.Base(), len(src))
+
+// var s scanner.Scanner
+// s.Init(file, src, nil, scanner.Mode(0))
+// for {
+// 	pos, tok, lit := s.Scan()
+// 	if tok == token.EOF {
+// 		break
+// 	}
+// 	fmt.Printf("%+v\t%s\t%q\n", fset.Position(pos), tok, lit)
+// }
 
 func main() {
 	f, err := os.Open("a.go")
