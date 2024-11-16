@@ -5,6 +5,7 @@ import (
 
 	"github.com/k3forx/go-static-analysis/types/identifier_resolution"
 	"github.com/k3forx/go-static-analysis/types/info_defs"
+	"github.com/k3forx/go-static-analysis/types/info_selections"
 	"github.com/k3forx/go-static-analysis/types/info_uses"
 	"github.com/k3forx/go-static-analysis/types/object"
 	pkg "github.com/k3forx/go-static-analysis/types/package"
@@ -33,6 +34,9 @@ func main() {
 
 	printDivider("Type Interface")
 	type_interface.Do()
+
+	printDivider("Info.Selections")
+	info_selections.Do()
 }
 
 func printDivider(name string) {
