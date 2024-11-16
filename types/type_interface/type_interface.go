@@ -13,48 +13,48 @@ import (
 const pkgMain = `package main
 
 // types.Basic
-// var a int
+var a int
 
 // types.Pointer
-// var b *float64
+var b *float64
 
 // types.Array
-// var c [0]string
+var c [0]string
 
 // types.Slice
-// var d []int
+var d []int
 
 // types.Map
-// var e map[string]int
+var e map[string]int
 
 // types.Chan
-// var f chan int
+var f chan int
 
 // types.Struct
-// var g struct{}
+var g struct{}
 
 // types.Tuple
 func h(k string) (int, bool) 
 
 // types.Signature
-// func i()
+func i()
 
 // types.Alias
-// type j = int
+type j = int
 
 // types.Named
-// type k struct{}
+type k struct{}
 
 // types.Interface
-// var l interface{}
+var l interface{}
 
 // types.Union
-// type Union interface {
-// 	int | string
-// }
+type m interface {
+	int | string
+}
 
 // TypeParam
-// func hoge[T any]() {}
+func nFunc[n any]() {}
 `
 
 func Do() {
@@ -78,7 +78,8 @@ func Do() {
 		if obj == nil {
 			continue
 		}
-		if ident.Name == "Union" {
+
+		if ident.Name == "m" {
 			tp, ok := obj.Type().Underlying().(*types.Interface)
 			if !ok {
 				continue
@@ -87,20 +88,13 @@ func Do() {
 				fmt.Printf("embedded: %s\n", reflect.TypeOf(tp.EmbeddedType(i)))
 			}
 		}
-		if ident.Name == "j" {
-			tp, ok := obj.Type().(*types.Alias)
-			if !ok {
-				continue
-			}
-			fmt.Println(tp.Obj().IsAlias())
-		}
+
 		if ident.Name == "h" {
 			tp, ok := obj.Type().(*types.Signature)
 			if !ok {
 				continue
 			}
-			fmt.Println(tp.Params().At(0).Name())
-			fmt.Println(reflect.TypeOf(tp.Results()))
+			fmt.Printf("type of result of func 'h': %+v\n", reflect.TypeOf(tp.Results()))
 		}
 
 		switch tp := obj.Type().(type) {
