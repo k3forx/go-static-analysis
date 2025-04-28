@@ -45,7 +45,12 @@ func main() {
 	mainPkg := prog.CreatePackage(pkg, files, info, false)
 	mainPkg.Build()
 
-	for _, m := range mainPkg.Members {
-		fmt.Printf("member: %+v\n", m)
+	for str, m := range mainPkg.Members {
+		// fmt.Printf("str: %s, member: %T\n", str, m)
+		fn, ok := m.(*ssa.Function)
+		if !ok {
+			continue
+		}
+		fmt.Printf("str: %s, global: %T\n", str, fn.Object())
 	}
 }
