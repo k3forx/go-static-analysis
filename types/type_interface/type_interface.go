@@ -7,7 +7,7 @@ import (
 	"go/token"
 	"go/types"
 	"log"
-	"reflect"
+	"slices"
 )
 
 const pkgMain = `package main
@@ -34,7 +34,7 @@ var f chan int
 var g struct{}
 
 // types.Tuple
-func h(k string) (int, bool) 
+func h(str string) (int, bool) 
 
 // types.Signature
 func i()
@@ -79,53 +79,57 @@ func Do() {
 			continue
 		}
 
-		if ident.Name == "m" {
-			tp, ok := obj.Type().Underlying().(*types.Interface)
-			if !ok {
-				continue
-			}
-			for i := range tp.NumEmbeddeds() {
-				fmt.Printf("embedded: %s\n", reflect.TypeOf(tp.EmbeddedType(i)))
-			}
-		}
+		// if ident.Name == "m" {
+		// 	tp, ok := obj.Type().Underlying().(*types.Interface)
+		// 	if !ok {
+		// 		continue
+		// 	}
+		// 	for i := range tp.NumEmbeddeds() {
+		// 		fmt.Printf("embedded: %s\n", reflect.TypeOf(tp.EmbeddedType(i)))
+		// 	}
+		// }
 
-		if ident.Name == "h" {
-			tp, ok := obj.Type().(*types.Signature)
-			if !ok {
-				continue
-			}
-			fmt.Printf("type of result of func 'h': %+v\n", reflect.TypeOf(tp.Results()))
+		// if ident.Name == "h" {
+		// 	tp, ok := obj.Type().(*types.Signature)
+		// 	if !ok {
+		// 		continue
+		// 	}
+		// 	fmt.Printf("type of result of func 'h': %+v\n", reflect.TypeOf(tp.Results()))
+		// }
+
+		if !slices.Contains([]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"}, ident.Name) {
+			continue
 		}
 
 		switch tp := obj.Type().(type) {
 		case *types.Basic:
-			fmt.Printf("type of '%s' is %s (types.Basic)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Basic (%s)\n", ident.Name, tp.String())
 		case *types.Pointer:
-			fmt.Printf("type of '%s' is %s (types.Pointer)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Pointer (%s)\n", ident.Name, tp.String())
 		case *types.Array:
-			fmt.Printf("type of '%s' is %s (types.Array)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Array (%s)\n", ident.Name, tp.String())
 		case *types.Slice:
-			fmt.Printf("type of '%s' is %s (types.Slice)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Slice (%s)\n", ident.Name, tp.String())
 		case *types.Map:
-			fmt.Printf("type of '%s' is %s (types.Map)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Map (%s)\n", ident.Name, tp.String())
 		case *types.Chan:
-			fmt.Printf("type of '%s' is %s (types.Chan)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Chan (%s)\n", ident.Name, tp.String())
 		case *types.Struct:
-			fmt.Printf("type of '%s' is %s (types.Struct)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Struct (%s)\n", ident.Name, tp.String())
 		case *types.Tuple:
-			fmt.Printf("type of '%s' is %s (types.Tuple)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Tuple (%s)\n", ident.Name, tp.String())
 		case *types.Signature:
-			fmt.Printf("type of '%s' is %s (types.Signature)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Signature (%s)\n", ident.Name, tp.String())
 		case *types.Alias:
-			fmt.Printf("type of '%s' is %s (types.Alias)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Alias (%s)\n", ident.Name, tp.String())
 		case *types.Named:
-			fmt.Printf("type of '%s' is %s (types.Named)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Named (%s)\n", ident.Name, tp.String())
 		case *types.Interface:
-			fmt.Printf("type of '%s' is %s (types.Interface)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Interface (%s)\n", ident.Name, tp.String())
 		case *types.Union:
-			fmt.Printf("type of '%s' is %s (types.Union)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.Union (%s)\n", ident.Name, tp.String())
 		case *types.TypeParam:
-			fmt.Printf("type of '%s' is %s (types.TypeParam)\n", ident.Name, tp.String())
+			fmt.Printf("type of '%s' is types.TypeParam (%s)\n", ident.Name, tp.String())
 		}
 	}
 }
