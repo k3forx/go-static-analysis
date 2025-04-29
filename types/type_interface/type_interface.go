@@ -33,28 +33,28 @@ var f chan int
 // types.Struct
 var g struct{}
 
-// types.Tuple
-func h(str string) (int, bool) 
-
 // types.Signature
-func i()
+func h()
 
 // types.Alias
-type j = int
+type i = int
 
 // types.Named
-type k struct{}
+type j struct{}
 
 // types.Interface
-var l interface{}
-
-// types.Union
-type m interface {
-	int | string
-}
+var k any
 
 // TypeParam
-func nFunc[n any]() {}
+func someFunc[l any]() {}
+
+// types.Tuple
+func someFunc2(str string) (int, bool)
+
+// types.Union
+type someInterface interface {
+	int | string
+}
 `
 
 func Do() {
